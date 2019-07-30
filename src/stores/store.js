@@ -208,6 +208,11 @@ const configureStore = (options = {}) => {
       store.processSingleDocument(doc);
     });
 
+    // process several documents a user inserts, where docs is an array.
+    appRegistry.on('documents-inserted', (view, docs) => {
+      store.processDocuments(docs);
+    });
+
     appRegistry.on('documents-paginated', (view, docs) => {
       store.processSingleDocument(docs[0] || {});
     });

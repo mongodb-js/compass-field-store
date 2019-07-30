@@ -86,7 +86,7 @@ describe('FieldStore', function() {
       );
     });
 
-    it('on documents-inserted', (done) => {
+    it('on document-inserted', (done) => {
       unsubscribe = store.subscribe(() => {
         const state = store.getState();
         expect(Object.keys(state.fields)).to.have.all.members(['harry', 'potter']);
@@ -95,6 +95,35 @@ describe('FieldStore', function() {
       });
       appRegistry.emit(
         'document-inserted', null, doc
+      );
+    });
+
+    it('on documents-inserted', (done) => {
+      const docs = [{ harry: 1 }, { hermione: 1 }];
+      const expectedArray = [
+        {
+          name: 'harry',
+          value: 'harry',
+          score: 1,
+          meta: 'field',
+          version: '0.0.0'
+        },
+        {
+          name: 'hermione',
+          value: 'hermione',
+          score: 1,
+          meta: 'field',
+          version: '0.0.0'
+        }
+      ];
+      unsubscribe = store.subscribe(() => {
+        const state = store.getState();
+        expect(Object.keys(state.fields)).to.have.all.members(['harry', 'hermione']);
+        expect(state.aceFields).to.deep.equal(expectedArray);
+        done();
+      });
+      appRegistry.emit(
+        'documents-inserted', null, docs
       );
     });
 
