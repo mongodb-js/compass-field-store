@@ -125,7 +125,6 @@ describe('FieldStore', function() {
 
     it('triggers for store methods', () => {
       const doc = {harry: 1, potter: true};
-      store.processSingleDocument(doc);
       unsubscribe = store.subscribe(() => {
         console.log('subscribe', {args: spy.args, called: spy.called});
         expect(spy.calledTwice).to.equal(true);
@@ -150,6 +149,7 @@ describe('FieldStore', function() {
           }
         ]);
       });
+      store.processSingleDocument(doc);
     });
   });
 
