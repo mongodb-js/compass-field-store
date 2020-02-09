@@ -127,6 +127,7 @@ describe('FieldStore', function() {
       const doc = {harry: 1, potter: true};
       store.processSingleDocument(doc);
       unsubscribe = store.subscribe(() => {
+        console.log('subscribe', {spy});
         expect(spy.calledTwice).to.equal(true);
         expect(spy.args[0][0]).to.equal('fields-changed');
         expect(spy.args[0][1]).to.deep.equal({fields: {}, topLevelFields: [], aceFields: []});
