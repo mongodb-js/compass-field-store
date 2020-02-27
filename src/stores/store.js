@@ -71,30 +71,34 @@ const configureStore = (options = {}) => {
       if (!fields[rootField.path].hasOwnProperty('nestedFields')) {
         fields[rootField.path].nestedFields = [];
       }
-      nestedFields.map((f) => {
+
+      Object.keys(nestedFields).map((fieldKey) => {
+        const f = nestedFields[fieldKey];
         if (!includes(fields[rootField.path].nestedFields, f.path)) {
           fields[rootField.path].nestedFields.push(f.path);
         }
       });
     }
 
-    for (const field of nestedFields) {
+    Object.keys(nestedFields).map((key) => {
+      const field = nestedFields[key];
       const existingField = fields[field.path] || {};
       const newField = pick(field, FIELDS);
       fields[field.path] = store._mergeFields(existingField, newField);
 
       // recursively search arrays and subdocuments
-      for (const type of field.types) {
-        if (type.name === 'Document') {
+      Object.keys(field.types).map((typeKey) => {
+        const type = field.types[typeKey];
+        if (typeKey === 'Document') {
           // add nested sub-fields
           store._flattenedFields(fields, type.fields, field);
         }
-        if (type.name === 'Array') {
+        if (typeKey === 'Array') {
           // add arrays of arrays or subdocuments
           store._flattenedArray(fields, type.types, field, arrayDepth);
         }
-      }
-    }
+      });
+    });
   };
 
   /**
@@ -110,16 +114,17 @@ const configureStore = (options = {}) => {
     fields[field.path].dimensionality = arrayDepth;
 
     // Arrays have no name, so can only recurse into arrays or subdocuments
-    for (const type of nestedTypes) {
-      if (type.name === 'Document') {
+    Object.keys(nestedTypes).map((typeKey) => {
+      const type = nestedTypes[typeKey];
+      if (typeKey === 'Document') {
         // recurse into nested sub-fields
         store._flattenedFields(fields, type.fields, field);
       }
-      if (type.name === 'Array') {
+      if (typeKey === 'Array') {
         // recurse into nested arrays (again)
         store._flattenedArray(fields, type.types, field, arrayDepth + 1);
       }
-    }
+    });
   };
 
   /**
@@ -150,12 +155,8 @@ const configureStore = (options = {}) => {
    */
   store._mergeSchema = (schema) => {
     const fields = cloneDeep(store.getState().fields);
-    const topLevelFields = [];
 
-    for (const field of schema.fields) {
-      const name = field.name;
-      topLevelFields.push(name);
-    }
+    const topLevelFields = Object.keys(schema.fields);
     store._flattenedFields(fields, schema.fields);
 
     const tlResult = union(store.getState().topLevelFields, topLevelFields);
